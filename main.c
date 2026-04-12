@@ -71,6 +71,9 @@ int main(int argc, char **argv) {
     //       and allocate the faults[] array.  faults[f] will hold the
     //       total number of page faults that occur when f frames are
     //       available.  Use calloc so all entries start at zero.
+    PageQueue* pq = pqInit(maxFrames);
+    unsigned long* faults = (unsigned long*)calloc(maxFrames, sizeof(unsigned long));
+
 
     // Process each memory access from the trace file
     while (!feof(ifp)) {
@@ -85,6 +88,7 @@ int main(int argc, char **argv) {
         if ((numAccesses % PROGRESS_INTERVAL) == 0) {
             fprintf(stderr, "%lu samples read, last page: %lu\r", numAccesses, pageNum);
         }
+        // printf("1");
 
         // TODO: Call pqAccess() to simulate this memory reference.
         //       It returns:
@@ -93,6 +97,18 @@ int main(int argc, char **argv) {
         //                    (fault for any allocation with fewer than d+1 frames)
         //
         //       Update faults[] accordingly.
+        int depth = pqAccess(pq, pageNum);
+        if(depth == -1){
+            for(int f = 0; f < maxFrames; f++){
+                // printf("%lu %d ", faults[f], f);
+                faults[f]++; //miss
+            }
+        }
+        else{
+            for(int f = 0; f < depth; f++){
+                faults[f]++; //hit
+            }
+        }
 
     }
 
@@ -105,9 +121,14 @@ int main(int argc, char **argv) {
     // TODO: Loop from frame count 1 to maxFrames and print each row:
     //       printf("%d,%lu,%f\n", frameCount, faults[frameCount],
     //              (double)faults[frameCount] / (double)numAccesses);
-
+    for(int f = 0; f < maxFrames; f++){
+        printf("%d,%lu,%f\n", f+1, faults[f], (double)faults[f] / (double)numAccesses);
+    }
     // TODO: Free your PageQueue and the faults[] array,
     //       then close the file.
+    pqFree(pq);
+    free(faults);
+    fclose(ifp);
 
     return 0;
 }

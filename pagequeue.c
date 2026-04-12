@@ -44,9 +44,9 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     //   - If size now exceeds maxSize, evict the head node (free it).
     //   - Return -1.
 
-    if (pq->size = 0){ //if pq is empty (like at first)
+    if (pq->size == 0){ //if pq is empty (like at first)
         PqNode* newNode = (PqNode*)malloc(sizeof(PqNode));
-        if(!newNode) return;
+        if(!newNode) return -1;
         newNode->next = NULL;
         newNode->pageNum = pageNum;
         newNode->prev = NULL;
@@ -57,38 +57,66 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     }
 
     else{
-        int index = 0;
+        // int d = 0;
         PqNode* current = pq->tail; //pointer to current index of pq
         for(int i = 0; i < pq->size; i++){
-            index = pq->size - i; //for tail first seach
+            // d = pq->size - i; //for tail first seach
             if(current->pageNum == pageNum){ //HIT
 
                 //first, unlink current node
-                if(current->prev){
-                    current->prev->next = current->next;
-                }
-                else{
-                    pq->head = current->next;
-                }
-                if(current->next){
-                    current->next->prev = current->prev;
-                }
-                else{
-                    pq->tail = current->prev;
+                // if(current != pq->head){ //if not head
+                //     current->prev->next = current->next; //1's next will point to 2's next (could be NULL)
+                // }
+                // else{
+                //     pq->head = current->next; //if current is 1, new head will point to 2
+                //     pq->head->prev = NULL;
+                // }
+                // if(current != pq->tail){ //if not tail
+                //     current->next->prev = current->prev; //3's prev will point to 2's prev
+                // }
+                // else{
+                //     pq->tail = current->prev; //if current is 3, new tail will point to 2
+                //     pq->tail->next = NULL;
+                //     // pq->tail = current;
+                // }
+
+                // //append current to tail
+                // pq->tail->next = current;
+                // current->next = NULL;
+                // pq->tail = current;
+                if(i == 0){ //if it's tail, do nothing (this includes when there's only 1 node)
+                    return i;
                 }
 
-                //append current to tail
-                pq->tail->next = current;
+                else if(i == pq->size-1){ //if it's head (current points to head node)
+                    pq->head = current->next; //current->next should be same as head->next
+                    pq->head->prev = NULL; //unlink head
+                    pq->tail->next = current; //point from old tail to new tail
+                    current->prev = pq->tail; //point from new tail to old tail
+                    pq->tail = current; //pq->tail now points to new tail
+                    pq->tail->next = NULL; //unlink the end of the new tail
+                }
+                else{
+                    //have 1 and 3 point to each other
+                    current->prev->next = current->next;
+                    current->next->prev = current->prev;
+                    //move current to back
+                    current->prev = pq->tail;
+                    current->next = NULL;
+                    //make current new tail
+                    pq->tail->next = current;
+                    pq->tail = current;
+                }
 
                 //return index in pq
-                return index;
+                return i;
             }
             current = current->prev; //should work. However, may go out of bounds if i goes all the way to 0.
         }
         //MISS
         //make new node, append to tail
         PqNode* newNode = (PqNode*)malloc(sizeof(PqNode));
-        if(!newNode) return;
+        if(!newNode) return -1;
         newNode->next = NULL;
         newNode->pageNum = pageNum;
         newNode->prev = pq->tail;
@@ -97,6 +125,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         pq->tail = newNode;
         pq->size += 1;
 
+        //261616, 291..., 404.., 600
         //if size now exceeds max size
         if(pq->size > pq->maxSize){
             PqNode* evictNode = pq->head;
@@ -138,7 +167,7 @@ void pqPrint(PageQueue *pq) {
     PqNode* current = pq->head;
     printf("Head->");
     while(current){
-        printf("%d->", current->pageNum);
+        printf("%lu->", current->pageNum);
         current = current->next;
     }
     printf("tail\n");
