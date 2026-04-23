@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": ["eon_rush_0.tr", "4"],
+            "args": ["eon_rush_0.tr", "1", ">", "out_512b.csv"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

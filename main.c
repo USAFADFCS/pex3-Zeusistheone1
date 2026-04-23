@@ -1,12 +1,14 @@
 /** main.c
  * ===========================================================
- * Name: Ray Soldini, __ ___ 2026
+ * Name: Ray Soldini, 4/23 2026
  * Section: CS483 / M4
  * Project: PEX3 - Page Replacement Simulator
  * Purpose: Reads a BYU binary memory trace file and simulates
  *          LRU page replacement to measure fault rates across
  *          varying frame allocations.
- * Documentation: None besides class material
+ * Documentation: Used this website for using calloc: https://www.tutorialspoint.com/c_standard_library/c_function_calloc.htm
+ * Used this for troubleshooting the debugger: https://www.reddit.com/r/vscode/comments/j0n2wi/how_to_pass_arguments_to_c_from_debug/
+ * Used my own DLL code from CS220
  * =========================================================== */
 #include <stdio.h>
 #include <stdlib.h>
